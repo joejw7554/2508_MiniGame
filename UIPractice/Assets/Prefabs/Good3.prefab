@@ -14,10 +14,9 @@ GameObject:
   - component: {fileID: 5423448404675549345}
   - component: {fileID: 3516325077759595868}
   - component: {fileID: 8256007803159636217}
-  - component: {fileID: 3902807614416995700}
   m_Layer: 6
   m_Name: Good3
-  m_TagString: Untagged
+  m_TagString: Good
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
@@ -156,16 +155,5 @@ MonoBehaviour:
   maxRotateForce: 15
   xRange: 4
   yRange: -6
---- !u!114 &3902807614416995700
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5078777924302637678}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 7b4f99f6355336d469d9aa075f0ad6fa, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  yLimit: -10
+  point: 8
+  explosionEffect: {fileID: 3199346384015752365, guid: 307229a5540374aae98859caad2128a3, type: 3}

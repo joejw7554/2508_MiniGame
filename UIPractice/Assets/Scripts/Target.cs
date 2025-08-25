@@ -6,6 +6,8 @@ public class Target : MonoBehaviour, IPoolable
     
     Rigidbody targetRb;
 
+    [Header("GameSystem")]
+
     [SerializeField]
     float minForce = 15f;
 
@@ -24,11 +26,19 @@ public class Target : MonoBehaviour, IPoolable
     [SerializeField]
     float yRange = -6f;
 
+    [Header("Point")]
+    [SerializeField]
+    int point=5;
+
+
+    [Header("Effect")]
+    [SerializeField]
+    ParticleSystem explosionEffect;
+
     void Awake()
     {
         targetRb = GetComponent<Rigidbody>();
         
-        // Target 레이어로 설정 (Layer 8을 Target으로 가정)
         gameObject.layer = LayerMask.NameToLayer("Target");
     }
 
@@ -39,11 +49,23 @@ public class Target : MonoBehaviour, IPoolable
 
     private void OnMouseDown()
     {
-        GameManager.Instance.ReturnToPool(PoolID, gameObject);
+        if ((GameManager.Instance.IsNotGameOver))
+        {
+            GameManager.Instance.ReturnToPool(PoolID, gameObject);
+            GameManager.Instance.UpdateScore(point);
+            if (explosionEffect)
+            {
+                Instantiate(explosionEffect, transform.position, transform.rotation);
+            }
+        }
     }
 
     private void OnTriggerEnter(Collider other)
     {
+        if(gameObject.CompareTag("Good"))
+        {
+            GameManager.Instance.GameOver();
+        }
         GameManager.Instance.ReturnToPool(PoolID, gameObject);
     }
 

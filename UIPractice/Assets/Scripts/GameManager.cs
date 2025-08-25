@@ -2,21 +2,35 @@ using System.Collections.Generic;
 using System.Collections;
 using UnityEngine;
 using UnityEngine.Pool;
+using TMPro;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour
 {
     private static GameManager instance;
     public static GameManager Instance { get { return instance; } }
 
+    [Header("오브젝트 풀링")]
     [SerializeField]
     List<GameObject> prefabs;
-
-    ObjectPool<GameObject>[] pools;
 
     [SerializeField]
     float spawnRate = 3f;
 
+    [Header("UI 요소")]
+    TextMeshProUGUI scoreText;
+
+    GameOverUI gameOverUI;
+
+    [Header("score")]
+    int score = 0;
+
+    [Header("게임 상태")]
+    [SerializeField]
     bool bIsNotGameOver = true;
+
+    public bool IsNotGameOver { get { return bIsNotGameOver; }   }
+    ObjectPool<GameObject>[] pools;
 
 
     private void Awake()
@@ -28,12 +42,63 @@ public class GameManager : MonoBehaviour
         }
 
         instance = this;
+
+        InitializeUI();
+
         InitializePools();
+    }
+
+    private void InitializeUI()
+    {
+        Canvas canvas = FindFirstObjectByType<Canvas>();
+        if (canvas == null)
+        {
+            return;
+        }
+
+
+        var allTexts = canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
+
+        // 모든 텍스트 컴포넌트 정보 출력
+        for (int i = 0; i < allTexts.Length; i++)
+        {
+            var text = allTexts[i];
+        }
+
+        foreach (var text in allTexts)
+        {
+            if (text.CompareTag("ScoreText"))
+            {
+                scoreText = text;
+            }
+        }
+
+        gameOverUI = FindFirstObjectByType<GameOverUI>();
+
+        if(gameOverUI == null)
+        {
+            GameObject gameoverPanel = GameObject.FindGameObjectWithTag("GameOverUI");
+
+            if(gameoverPanel)
+            {
+                gameOverUI= gameoverPanel.GetComponent<GameOverUI>();
+
+            }
+        }
+
+            gameOverUI.HideGameOverUI();
+
     }
 
     private void Start()
     {
         StartCoroutine("SpawnCoroutine");
+
+        if (scoreText != null)
+        {
+            UpdateScore(0);
+        }
+
     }
 
     IEnumerator SpawnCoroutine()
@@ -50,7 +115,6 @@ public class GameManager : MonoBehaviour
     {
         if (prefabs == null || prefabs.Count == 0)
         {
-            Debug.LogWarning("Prefabs list is empty or null!");
             return;
         }
 
@@ -61,9 +125,10 @@ public class GameManager : MonoBehaviour
             int index = i;
             pools[index] = new ObjectPool<GameObject>(
                 createFunc: () => Instantiate(prefabs[index]),
-                actionOnGet: (obj) => {
+                actionOnGet: (obj) =>
+                {
                     obj.SetActive(true);
-                    
+
                     var poolable = obj.GetComponent<IPoolable>();
                     if (poolable != null)
                     {
@@ -71,9 +136,10 @@ public class GameManager : MonoBehaviour
                         poolable.Initialize();
                     }
                 },
-                actionOnRelease: (obj) => {
+                actionOnRelease: (obj) =>
+                {
                     obj.SetActive(false);
-                    
+
                     var poolable = obj.GetComponent<IPoolable>();
                     if (poolable != null)
                     {
@@ -85,7 +151,6 @@ public class GameManager : MonoBehaviour
                 maxSize: 100
             );
 
-            // Pre-warming: 미리 10개 오브젝트 생성
             for (int j = 0; j < 10; j++)
             {
                 var prewarmedObj = pools[index].Get();
@@ -107,7 +172,6 @@ public class GameManager : MonoBehaviour
         if (pools == null || poolIndex < 0 || poolIndex >= pools.Length)
             return;
 
-        // actionOnRelease에서 OnReturnToPool()이 호출되므로 바로 반환
         pools[poolIndex].Release(obj);
     }
 
@@ -117,6 +181,27 @@ public class GameManager : MonoBehaviour
         {
             ReturnToPool(target.PoolID, obj);
         }
+
+
     }
+    public void UpdateScore(int InValue)
+    {
+        score += InValue;
+        scoreText.text = "Score: " + score;
+    }
+
+    public void GameOver()
+    {
+        gameOverUI.ShowGameOverUI();
+        bIsNotGameOver=false;
+
+    }
+
+    public void RestartGame()
+    {
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+
 }
 
