@@ -15,10 +15,11 @@ public class GameManager : MonoBehaviour
     List<GameObject> prefabs;
 
     [SerializeField]
-    float spawnRate = 3f;
+    float spawnRate = 1f;
 
     [Header("UI 요소")]
     TextMeshProUGUI scoreText;
+
 
     GameOverUI gameOverUI;
 
@@ -27,10 +28,11 @@ public class GameManager : MonoBehaviour
 
     [Header("게임 상태")]
     [SerializeField]
-    bool bIsNotGameOver = true;
+    bool bIsNotGameOver = false;
 
-    public bool IsNotGameOver { get { return bIsNotGameOver; }   }
+    public bool IsNotGameOver { get { return bIsNotGameOver; } }
     ObjectPool<GameObject>[] pools;
+
 
 
     private void Awake()
@@ -56,7 +58,6 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-
         var allTexts = canvas.GetComponentsInChildren<TextMeshProUGUI>(true);
 
         // 모든 텍스트 컴포넌트 정보 출력
@@ -75,29 +76,23 @@ public class GameManager : MonoBehaviour
 
         gameOverUI = FindFirstObjectByType<GameOverUI>();
 
-        if(gameOverUI == null)
+        if (gameOverUI == null)
         {
             GameObject gameoverPanel = GameObject.FindGameObjectWithTag("GameOverUI");
 
-            if(gameoverPanel)
+            if (gameoverPanel)
             {
-                gameOverUI= gameoverPanel.GetComponent<GameOverUI>();
-
+                gameOverUI = gameoverPanel.GetComponent<GameOverUI>();
             }
         }
 
-            gameOverUI.HideGameOverUI();
-
+        gameOverUI.HideGameOverUI();
     }
 
     private void Start()
     {
-        StartCoroutine("SpawnCoroutine");
 
-        if (scoreText != null)
-        {
-            UpdateScore(0);
-        }
+        UpdateScore(0);
 
     }
 
@@ -193,7 +188,7 @@ public class GameManager : MonoBehaviour
     public void GameOver()
     {
         gameOverUI.ShowGameOverUI();
-        bIsNotGameOver=false;
+        bIsNotGameOver = false;
 
     }
 
@@ -202,6 +197,17 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
     }
 
+    public void SetSpawnRate(float InRate)
+    {
+        spawnRate /= InRate;
+    }
+
+    public void StartGame()
+    {
+        bIsNotGameOver = true;
+        StartCoroutine("SpawnCoroutine");
+
+    }
 
 }
 
